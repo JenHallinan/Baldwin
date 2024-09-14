@@ -3,7 +3,7 @@
 |              Used to create both the parent and the child populations                          |
 |                              Author: Jennifer Hallinan                                         |
 |                                Commenced: 29/01/2024                                           |
-|                               Last edited: 10/02/2024                                          |
+|                               Last edited: 17/06/2024                                          |
 \*----------------------------------------------------------------------------------------------*/
 
 import java.util.ArrayList;
@@ -94,7 +94,7 @@ public class Population {
     }
 
     // kill off hosts who are below the fitness cutoff
-    public void cull(int cutoff){
+    public void cull(double cutoff){
         for (int i = 0; i < this.thePop.size(); i++){
             Host h = this.thePop.get(i);
             double nxtFit = h.getFitness();
@@ -102,6 +102,38 @@ public class Population {
                 this.thePop.remove(h);
             }
         }
+    }
+
+    public void calcPopFitness(Random rgen, int fat, int protein, int carbs, int fMax, int pMax, int cMax){
+        for (int i = 0; i < thePop.size(); i++){
+            Host h = this.thePop.get(i);
+            double newFitness = h.calcFitness(rgen, fat, protein, carbs, fMax, pMax, cMax);
+            h.setFitness(newFitness);
+        }
+    }
+
+    public int countHostAmy(int amyID) {
+        int numAmy = 0;
+        for (int i = 0; i < this.thePop.size(); i++){
+            Host h = this.thePop.get(i);
+            h.countHostAmy(amyID);
+            h.countMicAmy(amyID);
+        }
+        return(numAmy);
+    }
+
+    public int countMicAmy(int amyID) {
+        int numAmy = 0;
+        for (int i = 0; i < this.thePop.size(); i++){
+            Host h = this.thePop.get(i);
+            for (int j = 0; j < h.microbeGenome.size(); j++){
+                int nxt = h.microbeGenome.get(j);
+                if (nxt == amyID){
+                    numAmy++;
+                }
+            }
+        }
+        return(numAmy);
     }
 
     // private variables

@@ -7,15 +7,15 @@ import java.util.Random;
 |                             The host has its own genome plus an array of microbes                              |
 |                                             Author: Jennifer Hallinan                                          |
 |                                               Commenced: 08/03/2022                                            |
-|                                              Last edited: 10/02/2024                                           |
+|                                              Last edited: 11/09/2024                                           |
 \*--------------------------------------------------------------------------------------------------------------*/
 public class Host {
     // global variables
     static int RSEED = 666;                 // random number seed
     static int maxHostGenes = 10;           // maximum number of genes in the host
     static int maxMicrobeGenes = 20;        // maximum number of genes in a microbial genome
-    static int popSize = 1;                 // size of the population
-    static int numGenes = 5;              // maximum number of genes available in the system
+    static int popSize = 10;                // size of the population
+    static int numGenes = 5;                // maximum number of genes available in the system
     static int hostAmyGenes = 2;            // starting number of amylase genes in host
     static int micAmyGenes = 2;             // starting number of amylase genes per microbial genome
     static int carbs = 2;                   // amount of carbohydrate in the environment
@@ -41,8 +41,9 @@ public class Host {
         this.hostGenome = new ArrayList<Integer>();
         // Decide how many genes this host has
         int hostGenes = rgen.nextInt(maxHostGenes);
-        this.AGID = amyID;                                  // just for unit testing
+        this.AGID = amyID;
 
+        this.hostAmyCount = hostAmyGenes;
         for (int i = 0; i < hostAmyGenes; i++){
             this.hostGenome.add(this.AGID);
         }
@@ -56,9 +57,10 @@ public class Host {
         this.female = rgen.nextBoolean();
 
         // microbiome
-    int numMicrobeGenes = rgen.nextInt(maxMicrobeGenes);
+        int numMicrobeGenes = rgen.nextInt(maxMicrobeGenes);
         this.microbeGenome = new ArrayList<Integer>();
 
+        this.micAmyCount = micAmyGenes;
         for (int i = 0; i < micAmyGenes; i++){
             this.microbeGenome.add(this.AGID);
         }
@@ -68,19 +70,14 @@ public class Host {
             this.microbeGenome.add(m);
         }
 
+        // this.energy = rgen.nextDouble();
+        this.energy = 0.5;
+
         // random stats
         this.fitness = calcFitness(rgen, fat, protein, carbs, fMax, pMax, cMax);
         this.hostAmyCount = countAmy(this.hostGenome);
         this.micAmyCount = countAmy(this.microbeGenome);
     }
-
-    /* copy constructor
-    public Host(Host h){
-        this.hostGenome = h.getHostGenome();
-        this.hostAmyGenes = h.getHostAmyGenes();
-        this.micAmyGenes = h.getMicAmyGenes();
-        this.fitness = h.getFitness();
-    } */
 
     // constructor for new pup
     public Host(Random rgen, int amyID){
@@ -88,6 +85,7 @@ public class Host {
         this.microbeGenome = new ArrayList<Integer>();
         this.hostAge = 0;
         this.female = rgen.nextBoolean();
+        this.energy = rgen.nextDouble();
     }
 
     // print to stdout
@@ -111,26 +109,29 @@ public class Host {
         System.out.println("Age: " + this.hostAge);
         System.out.println("Host amylase genes: " + this.hostAmyCount);
         System.out.println("Microbial amylase genes: " + this.micAmyCount);
-        System.out.println("Fitness: " + this.fitness);
+        String formattedNumber = String.format("%.4f", fitness);
+        System.out.println("fitness: " + formattedNumber);
+        formattedNumber = String.format("%.2f", energy);
+        System.out.println("energy: " + formattedNumber);
         System.out.println();
     }
 
     public double calcFitness(Random rgen, int fat, int protein, int carbs, int fMax, int pMax, int cMax){
         // proportion of energy which can be filled by protein and fat
         double propFP = ((double)fat + (double)protein) / ((double)pMax + (double)fMax);
-        String formattedNumber = String.format("%.4f", propFP);
-        System.out.println("PropFP is " + formattedNumber);
+        // String formattedNumber = String.format("%.4f", propFP);
+        // System.out.println("PropFP is " + formattedNumber);
         // penalty for hunting
-        double penalty = rgen.nextDouble();
-        formattedNumber = String.format("%.4f", penalty);
-        System.out.println("penalty is " + formattedNumber);
+        double penalty = 1.0 - this.energy;
+        // formattedNumber = String.format("%.4f", penalty);
+        // System.out.println("penalty is " + formattedNumber);
         // proportion of energy which can be filled by carbs - depends on number of amy genes
         // magic number 30 is max recorded in dogs
         double propCarb = (double)this.hostAmyCount / 30.0 + (double)this.micAmyCount;
-        formattedNumber = String.format("%.4f", propCarb);
-        System.out.println("propCarb is " + formattedNumber);
+        // formattedNumber = String.format("%.4f", propCarb);
+        // System.out.println("propCarb is " + formattedNumber);
         double fitness = propFP + propCarb - penalty;
-        formattedNumber = String.format("%.4f", fitness);
+        String formattedNumber = String.format("%.2f", fitness);
         System.out.println("fitness is " + formattedNumber);
         return(fitness);
     }
@@ -249,6 +250,8 @@ public class Host {
         }
         System.out.println("Microbial amylase genes: " + count);
         pup.micAmyCount = count;
+        double pFit = this.calcFitness(rgen, fat, protein, carbs, fMax,pMax, cMax);
+        pup.fitness = pFit;
 
         //set other parameters
         Boolean f = rgen.nextBoolean();
@@ -265,6 +268,28 @@ public class Host {
         return(pup);
     }
 
+    public int countHostAmy(int amyID) {
+        int numAmy = 0;
+        for (int i = 0; i < this.hostGenome.size(); i++){
+            int h = this.hostGenome.get(i);
+            if (h == amyID){
+                numAmy++;
+            }
+            this.setHostAmyGenes(numAmy);
+        }
+        return(numAmy);
+    }
+
+    public int countMicAmy(int amyID) {
+        int numAmy = 0;
+        for (int i = 0; i < this.microbeGenome.size(); i++){
+            int h = this.microbeGenome.get(i);
+            if (h == amyID){
+                numAmy++;
+            }
+        }
+        return(numAmy);
+    }
     // private variables
     ArrayList<Integer> hostGenome;          // the genome of the host
     ArrayList<Integer> microbeGenome;       // the gut microbiome
@@ -274,4 +299,5 @@ public class Host {
     int micAmyCount;                        // number of amylase genes in the microbiome
     int hostAge;                            // age of host
     Boolean female;                         // Hosts are either male or female; females can breed between 1 and 7 years of age
+    double energy;                          // each host is born with a certain amount of energy
 }

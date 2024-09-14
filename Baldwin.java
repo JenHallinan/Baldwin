@@ -3,7 +3,7 @@
 |                            Controls the multi-species Baldwin Effect simulation                       |
 |                                      Author: Jennifer Hallinan                                        |
 |                                         Commence: 21/08/21                                            |
-|                                       Last edited: 10/02/24                                           |
+|                                       Last edited: 19/06/24                                           |
 \*-----------------------------------------------------------------------------------------------------*/
 
 import java.util.ArrayList;
@@ -26,15 +26,26 @@ public class Baldwin {
     static int pMax = 30;                   // maximum protein that can be used
     static int fMax = 63;                   // maximum fat that can be used
     static int tNum = 5;                    // number of hosts considered for tournament selection
-    static int fitCutoff = 2;               // fitness below which a host dies
+    static double fitCutoff = 2.0;          // fitness below which a host dies
+    static double energyAvailable;          // maximum energy in this environment
 
-    public static void main(String[] args){
+    public static void main(String[] args) {
         Random rgen = new Random(RSEED);
         int amyID = rgen.nextInt(numGenes);
-        Population parentPop = new Population(rgen,  maxHostGenes,  maxMicrobeGenes,  numGenes,
+        System.out.println("amyID is " + amyID);
+        Population parentPop = new Population(rgen, maxHostGenes, maxMicrobeGenes, numGenes,
                 carbs, protein, fat, penalty, cMax, pMax, fMax, amyID);
         System.out.println("Parent population:");
         parentPop.printPop();
+        System.out.println("About to cull");
+        parentPop.cull(fitCutoff);
+        parentPop.calcPopFitness(rgen, fat, protein, carbs, fMax, pMax, cMax);
+        parentPop.countHostAmy(amyID);
+        parentPop.countMicAmy(amyID);
+        parentPop.printPop();
+        System.out.println("FINISHED CULL");
+
+
         System.out.println("Child population:");
         Population childPop = new Population();
         childPop.printPop();
@@ -69,12 +80,13 @@ public class Baldwin {
 
         // kill off 50% of the pop least fit; c.f. Kirkwood's work
         parentPop.cull(fitCutoff);
+        System.out.println("Culled population: ");
+        parentPop.printPop();
 
 
         // increment age
         // Kill old hosts; average lifespan is 10 to 15 years https://www.akc.org/expert-advice/health/how-long-do-dogs-live/
             // chance of death == age /15
-
     }
 
     private static void saveMaxFittest(Population parentPop, Population childPop) {
