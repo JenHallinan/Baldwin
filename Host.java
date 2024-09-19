@@ -7,7 +7,7 @@ import java.util.Random;
 |                             The host has its own genome plus an array of microbes                              |
 |                                             Author: Jennifer Hallinan                                          |
 |                                               Commenced: 08/03/2022                                            |
-|                                              Last edited: 11/09/2024                                           |
+|                                              Last edited: 14/09/2024                                           |
 \*--------------------------------------------------------------------------------------------------------------*/
 public class Host {
     // global variables
@@ -70,8 +70,8 @@ public class Host {
             this.microbeGenome.add(m);
         }
 
-        // this.energy = rgen.nextDouble();
-        this.energy = 0.5;
+        this.energy = rgen.nextDouble();
+        // this.energy = 0.5;
 
         // random stats
         this.fitness = calcFitness(rgen, fat, protein, carbs, fMax, pMax, cMax);

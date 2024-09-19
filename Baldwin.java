@@ -3,7 +3,7 @@
 |                            Controls the multi-species Baldwin Effect simulation                       |
 |                                      Author: Jennifer Hallinan                                        |
 |                                         Commence: 21/08/21                                            |
-|                                       Last edited: 19/06/24                                           |
+|                                       Last edited: 14/09/24                                           |
 \*-----------------------------------------------------------------------------------------------------*/
 
 import java.util.ArrayList;
@@ -11,7 +11,7 @@ import java.util.Random;
 
 public class Baldwin {
     // global variables
-    static int RSEED = 666;                 // random number seed
+    static int RSEED = 111;                 // random number seed
     static int maxHostGenes = 10;           // maximum number of genes in the host
     static int maxMicrobeGenes = 20;        // maximum number of genes in a microbial genome
     static int popSize = 5;                 // size of the population
@@ -37,6 +37,7 @@ public class Baldwin {
                 carbs, protein, fat, penalty, cMax, pMax, fMax, amyID);
         System.out.println("Parent population:");
         parentPop.printPop();
+
         System.out.println("About to cull");
         parentPop.cull(fitCutoff);
         parentPop.calcPopFitness(rgen, fat, protein, carbs, fMax, pMax, cMax);
@@ -44,7 +45,6 @@ public class Baldwin {
         parentPop.countMicAmy(amyID);
         parentPop.printPop();
         System.out.println("FINISHED CULL");
-
 
         System.out.println("Child population:");
         Population childPop = new Population();
@@ -82,7 +82,6 @@ public class Baldwin {
         parentPop.cull(fitCutoff);
         System.out.println("Culled population: ");
         parentPop.printPop();
-
 
         // increment age
         // Kill old hosts; average lifespan is 10 to 15 years https://www.akc.org/expert-advice/health/how-long-do-dogs-live/
